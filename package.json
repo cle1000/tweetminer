@@ -1,0 +1,32 @@
+{
+  "name": "tweetMiner",
+  "version": "1.0.0",
+  "description": "Tweet miner with api",
+  "main": "twitterMiner.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "server": "nodemon server.js",
+    "miner": "node twitterMiner.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com"
+  },
+  "keywords": [
+    "RESTful",
+    "API",
+    "Twitter",
+    "Miner"
+  ],
+  "devDependencies": {
+    "nodemon": "^1.12.1"
+  },
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "express": "^4.16.2",
+    "lodash": "^4.17.4",
+    "moment": "^2.4.0",
+    "mongoose": "^4.7.2",
+    "twitter": "^1.7.1"
+  }
+}
