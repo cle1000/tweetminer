@@ -1,29 +1,24 @@
-var config = require('./config.js');
-
-
 var express = require('express'),
   app = express(),
-  port = config.port,
   mongoose = require('mongoose'),
-  Tweet = require('./api/models/tweet'),
-  bodyParser = require('body-parser');
+  bodyParser = require('body-parser'),
+  config = require('./config.js'),
+  routes = require('./api/routes/twitter'),
+  log = require('./log/log.js');
 
-
-
-mongoose.Promise = global.Promise;
-mongoose.connect(config.mongo_server);
+mongoose.Promise = require('bluebird');
+mongoose.connect(config.mongo_server, {useMongoClient: true});
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 
-var routes = require('./api/routes/twitter');
 routes(app);
 
 app.use(function(req, res) {
   res.status(404).send({url: req.originalUrl + ' not found'})
 });
 
-app.listen(port);
+app.listen(config.port);
 
-console.log('tweet miner RESTful API started on: ' + port);
+log.info(`tweetminer RESTful API started on: ${config.port}`);

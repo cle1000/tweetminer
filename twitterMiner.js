@@ -3,70 +3,71 @@ var _ = require('lodash');
 var TwitterApi = require('twitter');
 var mongoose = require('mongoose');
 var config = require('./config.js');
+var log = require('./log/log.js')
 var TweetCollection = require('./api/models/tweet.js');
 
-var TweetMiner = function() {
-    _.bindAll(this);
 
-    mongoose.connect(config.mongo_server);
+class TweetMiner {
+    constructor() {
+        mongoose.Promise = require('bluebird');
+        mongoose.connect(config.mongo_server, {useMongoClient: true});
 
+        var client = new TwitterApi({
+            consumer_key: config.twitter.consumer_key,
+            consumer_secret: config.twitter.consumer_secret,
+            access_token_key: config.twitter.access_token_key,
+            access_token_secret: config.twitter.access_token_secret
+        });
 
-    var client = new TwitterApi({
-        consumer_key: config.twitter.consumer_key,
-        consumer_secret: config.twitter.consumer_secret,
-        access_token_key: config.twitter.access_token_key,
-        access_token_secret: config.twitter.access_token_secret
-    });
+        this.resetTweetCollection();
 
-    this.stream = client.stream('statuses/filter', {track: config.twitter.track});
-    this.stream.on('data', this.processTweets);
-    this.stream.on('error', this.processTweetsError);
+        this.stream = client.stream('statuses/filter', {track: config.twitter.track});
+        this.stream.on('data', this.processTweets.bind(this));
+        this.stream.on('error', (error) =>  log.error( `Twitter reports error: ${error}`) );
+        this.stream.on('end', () => log.info("Twitter stream end"));
 
-}
+        log.info(`Tweetminer tracks now all tweet belonging to [${config.twitter.track}]`);
+    }
 
-TweetMiner.prototype.processTweets = function (event){
-     if (!this.tweetCollection || moment(this.tweetCollection.start).add(1, 'minute').isBefore(moment())){
-         if (this.tweetCollection)
-            this.tweetCollection.save(function(err, tweet) {
-                console.log("saved tweet collection");
-                if (err)
-                    console.log("error: " +  err);
+    processTweets(event) {
+        var collectionOlderThanOneMinute = moment(this.tweetCollection.start).add(1, 'minute').isBefore(moment());
+        if (collectionOlderThanOneMinute) {
+            //save collection to db
+            this.saveTweetCollection();
+            this.resetTweetCollection();
+        }
+        if (event) {
+            this.tweetCollection.tweets.push({
+                id: event.id,
+                created_date: moment(event.created_date),
+                text: event.text,
+                followers: event.user.followers_count,
+                user_id: event.user.screen_name,
+                hashtags: event.entities.hashtags.map((h) => h.text)
             });
 
+            this.tweetCollection.count++;
+            this.tweetCollection.follower_count += event.user.followers_count;
+        }
+    }
+
+    saveTweetCollection() {
+        this.tweetCollection.save(function(err, t){
+            if (err)
+                log.error ("Error on save: " + err);
+            log.info(`TweetCollection [${t.count}] stored, last tweet on ${moment(_.last(t.tweets).created_date).format()}`);
+        });
+    }
+
+    resetTweetCollection(){
          this.tweetCollection = new TweetCollection({
             count: 0,
             follower_count: 0,
             start: moment().second(0).milliseconds(0),
             tweets: []
          });
-     }
-
-
-     if (event){
-         try {
-             this.tweetCollection.tweets.push({
-                 id: event.id,
-                 created_date: moment(event.created_date),
-                 text: event.text,
-                 followers: event.user.followers_count,
-                 user_id: event.user.screen_name,
-                 hashtags: event.entities.hashtags.map(function (h) {
-                     return h.text
-                 })
-             });
-
-             this.tweetCollection.count++;
-             this.tweetCollection.follower_count += event.user.followers_count;
-         }catch(err){
-             console.log(err);
-         }
-     }
-};
-
-TweetMiner.prototype.processTweetsError = function (error){
-  console.log(error);
-};
-
+    }
+}
 
 new TweetMiner();
 
