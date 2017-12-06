@@ -23,11 +23,9 @@ class TweetMiner {
 
         this.stream = client.stream('statuses/filter', {track: config.twitter.track});
         this.stream.on('data', this.processTweets.bind(this));
-        this.stream.on('error', (error) =>  log.error( `Twitter reports error: ${error}`) );
-        this.stream.on('end', () => {
-            log.info("Twitter stream end, try restart");
-            new TweetMiner();
-        } );
+        this.stream.on('error', (error) =>  this.stop( `Twitter reports error: ${error}`));
+        this.stream.on('end', () => {this.stop("Twitter stream end..")});
+        this.stream.on('destroy', () => {this.stop("Twitter stream destroy..")});
 
         log.info(`Tweetminer tracks now all tweet belonging to [${config.twitter.track}]`);
     }
@@ -69,6 +67,11 @@ class TweetMiner {
             start: moment().second(0).milliseconds(0),
             tweets: []
          });
+    }
+
+    stop(msg){
+        log.error(msg);
+        process.exit(1);
     }
 }
 
