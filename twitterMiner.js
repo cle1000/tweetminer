@@ -41,13 +41,13 @@ class TweetMiner {
                 id: event.id,
                 created_date: moment(event.created_date),
                 text: event.text,
-                followers: event.user.followers_count,
-                user_id: event.user.screen_name,
+                followers: event.user ? event.user.followers_count : 0,
+                user_id: event.user ? event.user.screen_name : 'unknown',
                 hashtags: event.entities.hashtags.map((h) => h.text)
             });
 
             this.tweetCollection.count++;
-            this.tweetCollection.follower_count += event.user.followers_count;
+            this.tweetCollection.follower_count += event.user ? event.user.followers_count : 0;
         }
     }
 

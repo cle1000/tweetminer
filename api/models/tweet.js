@@ -17,5 +17,7 @@ var TweetSchema = new Schema({
   }]
 });
 
+TweetSchema.index({start: 1 });
+
 
 module.exports = mongoose.model('Tweet', TweetSchema);
