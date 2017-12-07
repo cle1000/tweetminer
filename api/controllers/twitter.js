@@ -16,6 +16,7 @@ var sentimentalAnalysis = (tweetCollection) => {
         tweetCollection.negative =_.reduce(tweetCollection.tweets, function(sum, t){return sum + t.sentiment.neg}, 0);
         //console.log(JSON.stringify(tweetCollection));
         tweetCollection.save();
+        tweetCollection.tweets = [];
     }
 }
 
@@ -57,6 +58,7 @@ exports.get_timerange_list = function(req, res) {
 
                 data.push({
                     start: moment(m),
+                    version: _.reduce(tweetGroup, function(sum, n){return sum + n.version}, 0)/_.size(tweetGroup),
                     count: _.reduce(tweetGroup, function(sum, n){return sum + n.count}, 0),
                     follower: _.reduce(tweetGroup, function(sum, n){return sum + n.follower_count}, 0),
                     positive: _.reduce(tweetGroup, function(sum, n){return sum + n.positive}, 0),
