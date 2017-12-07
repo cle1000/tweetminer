@@ -28,9 +28,11 @@
   "dependencies": {
     "body-parser": "^1.15.2",
     "express": "^4.16.2",
+    "file-system": "^2.2.2",
     "lodash": "^4.17.4",
-    "moment": "^2.4.0",
+    "moment": "^2.19.3",
     "mongoose": "^4.7.2",
+    "mongoose-double": "^0.0.1",
     "morgan": "^1.9.0",
     "twitter": "^1.7.1"
   }

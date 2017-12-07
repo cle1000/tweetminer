@@ -63,3 +63,5 @@ config.js
 #dist folder
 dist*
 
+*currentTweets.txt
+
