@@ -32,7 +32,7 @@ exports.get_timerange_list = function(req, res) {
                   $lt: new Date(to)
               },
           },
-          ['start', 'follower_count', 'count', 'tweets'],
+          ['start', 'follower_count', 'count', 'version', 'positive', 'negative'],
           {
               sort: {
                   start: 1
@@ -82,7 +82,7 @@ exports.get_timerange = function(req, res) {
             $lt: end
           },
           },
-          ['start', 'follower_count', 'count'],
+          ['start', 'follower_count', 'count', 'version', 'positive', 'negative'],
           {sort: {
               start: 1
           }
