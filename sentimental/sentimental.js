@@ -21,7 +21,7 @@ class Sentimental {
 
   cleanText(tweets){
       return tweets.map(t => {
-          t.text = t.text.replace(/(\r\n|\n|\r)/gm,"");
+          t.text = t.text ? t.text.replace(/(\r\n|\n|\r)/gm,"") : "";
           return t;
       })
   }
