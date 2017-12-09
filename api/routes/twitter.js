@@ -7,4 +7,6 @@ module.exports = function(app) {
 		.get(twitterList.get_timerange_list);
 	app.route('/twitter/:size/:from')
 		.get(twitterList.get_timerange);
+	app.route('/twitter/last')
+		.get(twitterList.get_last);
 };

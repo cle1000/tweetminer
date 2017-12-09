@@ -72,6 +72,12 @@ exports.get_timerange_list = function(req, res) {
       });
 };
 
+exports.get_last = function (req, res) {
+    tweetCollections.findOne({}, [], {sort: {start: -1}}, function (err, post) {
+        res.json(post);
+    })
+};
+
 
 exports.get_timerange = function(req, res) {
       //size in minutes
