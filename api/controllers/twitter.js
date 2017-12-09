@@ -10,6 +10,7 @@ var tweetCollections = require('../models/tweet.js')
 
 var sentimentalAnalysis = (tweetCollection) => {
     if (analysis.newVersion(tweetCollection.version)) {
+
         tweetCollection.tweets = analysis.callSentimentalAnalysis(tweetCollection.tweets);
         tweetCollection.version = analysis.version;
         tweetCollection.positive = _.reduce(tweetCollection.tweets, function(sum, t){return sum + t.sentiment.pos}, 0);
@@ -58,7 +59,7 @@ exports.get_timerange_list = function(req, res) {
 
                 data.push({
                     start: moment(m),
-                    version: _.reduce(tweetGroup, function(sum, n){return sum + n.version}, 0)/_.size(tweetGroup),
+                    version: analysis.version,
                     count: _.reduce(tweetGroup, function(sum, n){return sum + n.count}, 0),
                     follower: _.reduce(tweetGroup, function(sum, n){return sum + n.follower_count}, 0),
                     positive: _.reduce(tweetGroup, function(sum, n){return sum + n.positive}, 0),
@@ -98,6 +99,7 @@ exports.get_timerange = function(req, res) {
             res.json(
                 {
                     start: moment(from),
+                    version: analysis.version,
                     count: _.reduce(tweetCollections, function(sum, n){return sum + n.count}, 0),
                     follower: _.reduce(tweetCollections, function(sum, n){return sum + n.follower_count}, 0),
                     positive: _.reduce(tweetCollections, function(sum, n){return sum + n.positive}, 0),

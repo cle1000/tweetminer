@@ -5,6 +5,7 @@ var mongoose = require('mongoose');
 var config = require('./config.js');
 var log = require('./log/log.js')
 var TweetCollection = require('./api/models/tweet.js');
+var analysis = require('./sentimental/sentimental.js');
 
 
 class TweetMiner {
@@ -53,6 +54,7 @@ class TweetMiner {
     }
 
     saveTweetCollection() {
+        this.tweetCollection.tweets = analysis.callSentimentalAnalysis(this.tweetCollection.tweets);
         this.tweetCollection.save(function(err, t){
             if (err)
                 log.error ("Error on save: " + err);
