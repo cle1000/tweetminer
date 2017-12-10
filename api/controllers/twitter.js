@@ -73,9 +73,42 @@ exports.get_timerange_list = function(req, res) {
 };
 
 exports.get_last = function (req, res) {
-    tweetCollections.findOne({}, [], {sort: {start: -1}}, function (err, post) {
-        res.json(post);
-    })
+    tweetCollections.aggregate([ { $sort : { start : 1 }  }, { $limit: 100},
+        { $unwind: "$tweets" },
+        { $group: {
+            _id: "$_id",
+            start: {"$first": "$start"},
+            negative: { "$sum": "$tweets.sentiment.neg"},
+            positive: { "$sum": "$tweets.sentiment.pos"},
+            positive_w: { "$sum": {
+                "$multiply":
+                    [
+                        "$tweets.sentiment.pos",
+                        "$tweets.followers"
+                    ]
+            }},
+            negative_w: { "$sum": {
+                "$multiply":
+                    [
+                        "$tweets.sentiment.neg",
+                        "$tweets.followers"
+                    ]
+            }},
+            follower_count : {"$sum": "$tweets.followers"},
+            tweets : {"$sum": 1},
+
+        }
+        }
+    ], function (err, result) {
+        if (err) {
+            res.send(err);
+            return;
+        }
+        res.json(result)
+    });
+
+
+
 };
 
 
