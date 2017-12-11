@@ -8,7 +8,7 @@
     "build": "rimraf dist/ && babel ./ --out-dir dist/ --ignore ./node_modules,./.babelrc,./package.json,./npm-debug.log --copy-files",
     "server": "npm run build && nodemon dist/server.js",
     "miner": "npm run build && while true; do node dist/twitterMiner.js && break; done",
-    "doall": "npm run build && node dist/doAllSentiment.js"
+    "doall": "npm run build && while true; do node dist/doAllSentiment.js; done"
 
   },
   "repository": {
